@@ -7,7 +7,7 @@ export default function Leaderboard() {
   const token = localStorage.getItem("token")
 
   useEffect(() => {
-    fetch("http://localhost:8000/leaderboard", {
+    fetch("https://juan-sao-ville.onrender.com/leaderboard", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

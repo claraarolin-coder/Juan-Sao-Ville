@@ -9,7 +9,7 @@ export default function ResistancePage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await fetch("http://localhost:8000/feedback", {
+      const res = await fetch("https://juan-sao-ville.onrender.com/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -33,7 +33,7 @@ export default function ResistancePage() {
 
   const fetchFeedbacks = async () => {
     try {
-      const res = await fetch("http://localhost:8000/feedback")
+      const res = await fetch("https://juan-sao-ville.onrender.com/feedback")
       if (res.ok) {
         const data = await res.json()
         setFeedbacks(data)

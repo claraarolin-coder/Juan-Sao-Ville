@@ -14,7 +14,7 @@ export default function AdminRewards() {
     setStatus(null)
 
     try {
-      const response = await fetch("http://localhost:8000/rewards", {
+      const response = await fetch("https://juan-sao-ville.onrender.com/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

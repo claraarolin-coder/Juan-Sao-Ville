@@ -13,7 +13,7 @@ export default function SlaveDashboard() {
   
   useEffect(() => {
     if (!token) return
-    fetch("http://localhost:8000/victims", {
+    fetch("https://juan-sao-ville.onrender.com/victims", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -26,7 +26,7 @@ export default function SlaveDashboard() {
     setError(null)
 
     try {
-      const response = await fetch("http://localhost:8000/victims", {
+      const response = await fetch("https://juan-sao-ville.onrender.com/victims", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

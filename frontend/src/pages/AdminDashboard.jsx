@@ -12,36 +12,35 @@ export default function AdminDashboard() {
     slave_id: "",
   })
   const [error, setError] = useState(null)
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const token = localStorage.getItem("token")
   const navigate = useNavigate()
 
-  // Déconnexion
   const handleLogout = () => {
     localStorage.removeItem("token")
     navigate("/login")
   }
 
-  // Chargement des données
   useEffect(() => {
     if (!token) return
 
     const fetchData = async () => {
       try {
-        // Leaderboard
-        const resLeaderboard = await fetch("http://localhost:8000/leaderboard", {
+        
+        const resLeaderboard = await fetch("https://juan-sao-ville.onrender.com/leaderboard", {
           headers: { Authorization: `Bearer ${token}` },
         })
         setLeaderboard(resLeaderboard.ok ? await resLeaderboard.json() : [])
 
-        // Victimes
-        const resVictims = await fetch("http://localhost:8000/victims", {
+        
+        const resVictims = await fetch("https://juan-sao-ville.onrender.com/victims", {
           headers: { Authorization: `Bearer ${token}` },
         })
         setVictims(resVictims.ok ? await resVictims.json() : [])
 
-        // Rewards
-        const resRewards = await fetch("http://localhost:8000/rewards", {
+       
+        const resRewards = await fetch("https://juan-sao-ville.onrender.com/rewards", {
           headers: { Authorization: `Bearer ${token}` },
         })
         setRewards(resRewards.ok ? await resRewards.json() : [])
@@ -54,13 +53,12 @@ export default function AdminDashboard() {
     fetchData()
   }, [token])
 
-  // Création d’une récompense
   const handleCreateReward = async (e) => {
     e.preventDefault()
     setError(null)
 
     try {
-      const res = await fetch("http://localhost:8000/rewards", {
+      const res = await fetch("https://juan-sao-ville.onrender.com/rewards", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
