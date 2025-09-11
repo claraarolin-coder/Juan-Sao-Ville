@@ -6,51 +6,52 @@ export default function Login() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
   const navigate = useNavigate()
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
 
     try {
-      const response = await fetch("https://juan-sao-ville.onrender.com/", {
+      // 👉 Envoi au bon endpoint : /auth/login
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-          username: email,
+          username: email,  // ⚠️ ici c'est bien "username"
           password: password,
         }),
       })
 
       if (!response.ok) {
-        setError("❌ Invalid usernames")
+        setError("❌ Invalid username or password")
         return
       }
 
       const data = await response.json()
       localStorage.setItem("token", data.access_token)
 
-      // 👉 On appelle /me pour récupérer le rôle
-      const resUser = await fetch("https://juan-sao-ville.onrender.com/", {
+      // 👉 Ensuite, on récupère l'utilisateur courant
+      const resUser = await fetch(`${API_URL}/me`, {
         headers: {
           Authorization: `Bearer ${data.access_token}`,
         },
       })
 
       if (!resUser.ok) {
-        setError("❌ Impossible to get users' datas")
+        setError("❌ Impossible to get user data")
         return
       }
 
       const user = await resUser.json()
-      localStorage.setItem("role", user.role) 
+      localStorage.setItem("role", user.role)
 
-      
+      // 👉 Redirection selon le rôle
       if (user.role === "admin") navigate("/admin")
       else if (user.role === "slave") navigate("/slave")
       else navigate("/resistance")
     } catch (err) {
-      setError("⚠️ Impossible to contact the servor")
+      setError("⚠️ Impossible to contact the server")
       console.error(err)
     }
   }
