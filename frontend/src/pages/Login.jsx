@@ -17,10 +17,7 @@ export default function Login() {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          username: email,  // ⚠️ ici c'est bien "username"
-          password: password,
-        }),
+        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
       })
 
       if (!response.ok) {
