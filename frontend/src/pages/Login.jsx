@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import axios from "axios"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -13,34 +14,29 @@ export default function Login() {
     setError(null)
 
     try {
-      // 👉 Envoi au bon endpoint : /auth/login
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
-      })
+      // 👉 Envoi au backend avec axios (form-urlencoded)
+      const res = await axios.post(
+        `${API_URL}/auth/login`,
+        new URLSearchParams({
+          username: email, // ⚠️ doit s’appeler username, pas email
+          password: password,
+        }),
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        }
+      )
 
-      if (!response.ok) {
-        setError("❌ Invalid username or password")
-        return
-      }
+      const token = res.data.access_token
+      localStorage.setItem("token", token)
 
-      const data = await response.json()
-      localStorage.setItem("token", data.access_token)
-
-      // 👉 Ensuite, on récupère l'utilisateur courant
-      const resUser = await fetch(`${API_URL}/me`, {
+      // 👉 Récupérer l'utilisateur courant
+      const resUser = await axios.get(`${API_URL}/me`, {
         headers: {
-          Authorization: `Bearer ${data.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
       })
 
-      if (!resUser.ok) {
-        setError("❌ Impossible to get user data")
-        return
-      }
-
-      const user = await resUser.json()
+      const user = resUser.data
       localStorage.setItem("role", user.role)
 
       // 👉 Redirection selon le rôle
@@ -48,8 +44,8 @@ export default function Login() {
       else if (user.role === "slave") navigate("/slave")
       else navigate("/resistance")
     } catch (err) {
-      setError("⚠️ Impossible to contact the server")
       console.error(err)
+      setError("❌ Invalid username or password")
     }
   }
 
