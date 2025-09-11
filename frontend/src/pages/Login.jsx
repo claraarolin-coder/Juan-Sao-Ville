@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -14,29 +13,34 @@ export default function Login() {
     setError(null)
 
     try {
-      // 👉 Envoi au backend avec axios (form-urlencoded)
-      const res = await axios.post(
-        `${API_URL}/auth/login`,
-        new URLSearchParams({
-          username: email, // ⚠️ doit s’appeler username, pas email
-          password: password,
-        }),
-        {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        }
-      )
+      // 👉 Envoi au bon endpoint : /auth/login
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+      })
 
-      const token = res.data.access_token
-      localStorage.setItem("token", token)
+      if (!response.ok) {
+        setError("❌ Invalid username or password")
+        return
+      }
 
-      // 👉 Récupérer l'utilisateur courant
-      const resUser = await axios.get(`${API_URL}/me`, {
+      const data = await response.json()
+      localStorage.setItem("token", data.access_token)
+
+      // 👉 Ensuite, on récupère l'utilisateur courant
+      const resUser = await fetch(`${API_URL}/me`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${data.access_token}`,
         },
       })
 
-      const user = resUser.data
+      if (!resUser.ok) {
+        setError("❌ Impossible to get user data")
+        return
+      }
+
+      const user = await resUser.json()
       localStorage.setItem("role", user.role)
 
       // 👉 Redirection selon le rôle
@@ -44,8 +48,8 @@ export default function Login() {
       else if (user.role === "slave") navigate("/slave")
       else navigate("/resistance")
     } catch (err) {
+      setError("⚠️ Impossible to contact the server")
       console.error(err)
-      setError("❌ Invalid username or password")
     }
   }
 
@@ -82,3 +86,4 @@ export default function Login() {
     </div>
   )
 }
+
